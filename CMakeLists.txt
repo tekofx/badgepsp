@@ -22,8 +22,8 @@ if(PSP)
     # Create an EBOOT.PBP file
     create_pbp_file(
         TARGET ${PROJECT_NAME}
-        ICON_PATH ${CMAKE_SOURCE_DIR}/assets/icon.png
-        BACKGROUND_PATH ${CMAKE_SOURCE_DIR}/assets/background.png
+        ICON_PATH ${CMAKE_SOURCE_DIR}/assets/psp_menu/icon.png
+        BACKGROUND_PATH ${CMAKE_SOURCE_DIR}/assets/psp_menu/background.png
         PREVIEW_PATH NULL
         TITLE ${PROJECT_NAME}
         VERSION 01.00
