@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
       SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
   // Load image
-  SDL_Surface *imgSurface = IMG_Load("image.png");
+  SDL_Surface *imgSurface = IMG_Load("assets/image.png");
   SDL_Texture *sprite1 = SDL_CreateTextureFromSurface(renderer, imgSurface);
   SDL_FreeSurface(imgSurface);
 
