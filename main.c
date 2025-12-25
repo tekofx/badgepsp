@@ -49,12 +49,12 @@ int main(int argc, char *argv[]) {
     SDL_RenderClear(renderer);
 
     // Draw the 'grass' sprite
-    sprite_rect.w = 100; // new width
+    sprite_rect.w = 150; // new width
     sprite_rect.h = 150; // new height
-    sprite_rect.x = (480 - sprite_rect.w) / 2;
+    sprite_rect.x = 0;
     sprite_rect.y = (272 - sprite_rect.h) / 2;
 
-    SDL_RenderCopyEx(renderer, sprite, NULL, &sprite_rect, 90, NULL,
+    SDL_RenderCopyEx(renderer, sprite, NULL, &sprite_rect, 270, NULL,
                      SDL_FLIP_NONE);
 
     // Draw everything on a white background
