@@ -35,14 +35,23 @@ int main(int argc, char *argv[]) {
       SDL_CreateTextureFromSurface(renderer, textSurface);
   SDL_FreeSurface(textSurface);
 
-  SDL_Rect textRect;
-  SDL_QueryTexture(textTexture, NULL, NULL, &textRect.w, &textRect.h);
-  textRect.x = (480 - textRect.w) / 2;
-  textRect.y = (272 - textRect.h) / 2;
-
-  // Store the dimensions of the texture
+  // Store the dimensions of the sprite
   SDL_Rect sprite_rect;
   SDL_QueryTexture(sprite, NULL, NULL, &sprite_rect.w, &sprite_rect.h);
+
+  // Define size and position of sprite
+  sprite_rect.w = 150; // new width
+  sprite_rect.h = 150; // new height
+  sprite_rect.x = 0;
+  sprite_rect.y = (SCREEN_HEIGHT - sprite_rect.h) / 2;
+
+  // Store the dimensions of the text
+  SDL_Rect textRect;
+  SDL_QueryTexture(textTexture, NULL, NULL, &textRect.w, &textRect.h);
+
+  // Define position of the text
+  textRect.x = (480 - textRect.w) / 2;
+  textRect.y = (272 - textRect.h) / 2;
 
   int running = 1;
   SDL_Event event;
@@ -70,12 +79,7 @@ int main(int argc, char *argv[]) {
     // Clear the screen
     SDL_RenderClear(renderer);
 
-    // Draw the 'grass' sprite
-    sprite_rect.w = 150; // new width
-    sprite_rect.h = 150; // new height
-    sprite_rect.x = 0;
-    sprite_rect.y = (SCREEN_HEIGHT - sprite_rect.h) / 2;
-
+    // Draw sprite
     SDL_RenderCopyEx(renderer, sprite, NULL, &sprite_rect, 270, NULL,
                      SDL_FLIP_NONE);
 
