@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <SDL_image.h>
 // Define screen dimensions
 #define SCREEN_WIDTH 480
@@ -6,7 +7,7 @@
 
 int running = 1;
 int angle = 0;
-int show = 0;
+bool show = true;
 
 void renderImage(SDL_Renderer *renderer, SDL_Texture *sprite, int angle) {
   SDL_Rect sprite_rect;
@@ -48,21 +49,39 @@ void handleInput(SDL_Event event) {
 
       if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_DOWN) {
         // Close the program if start is pressed
-
-        if (show == 0) {
-          show = 1;
-        } else {
-          show = 0;
-        }
+        show = !show;
       }
       break;
     }
   }
 }
 
+TTF_Font *loadFont() {
+  // Get base path
+  char *basePath = SDL_GetBasePath();
+  char fullPath[512];
+  snprintf(fullPath, sizeof(fullPath), "%sassets/font.ttf", basePath);
+
+  // Open font
+  TTF_Font *font = TTF_OpenFont(fullPath, 20);
+  if (!font) {
+    printf("Failed to load font: %s\n", TTF_GetError());
+  }
+
+  SDL_free(basePath);
+  return font;
+}
+
 int main(int argc, char *argv[]) {
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER);
   IMG_Init(IMG_INIT_PNG);
+  // Initialize SDL2_ttf
+  if (TTF_Init() < 0) {
+    printf("SDL2_ttf could not be initialized!\n"
+           "SDL2_ttf Error: %s\n",
+           SDL_GetError());
+    return 0;
+  }
 
   SDL_Window *window =
       SDL_CreateWindow("window", SDL_WINDOWPOS_UNDEFINED,
@@ -75,6 +94,21 @@ int main(int argc, char *argv[]) {
   SDL_Texture *sprite1 = SDL_CreateTextureFromSurface(renderer, imgSurface);
   SDL_FreeSurface(imgSurface);
 
+  // Load ttf
+  TTF_Font *font = loadFont();
+  SDL_Color text_color = {0x00, 0x00, 0x00, 0xff};
+  SDL_Rect text_rect;
+
+  SDL_Surface *surface =
+      TTF_RenderUTF8_Blended(font, "Hello World!", text_color);
+  SDL_Texture *text = SDL_CreateTextureFromSurface(renderer, surface);
+  text_rect.w = surface->w;
+  text_rect.h = surface->h;
+  SDL_FreeSurface(surface);
+
+  text_rect.x = (SCREEN_WIDTH - text_rect.w) / 2;
+  text_rect.y = text_rect.h + 30;
+
   SDL_Event event;
   while (running) {
     handleInput(event);
@@ -82,9 +116,12 @@ int main(int argc, char *argv[]) {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
 
-    if (show == 0) {
+    if (show) {
       renderImage(renderer, sprite1, angle);
     }
+
+    SDL_RenderCopyEx(renderer, text, NULL, &text_rect, angle, NULL,
+                     SDL_FLIP_NONE);
 
     SDL_RenderPresent(renderer);
   }
