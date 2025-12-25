@@ -19,6 +19,17 @@ void renderImage(SDL_Renderer *renderer, SDL_Texture *sprite, int angle) {
   SDL_RenderCopyEx(renderer, sprite, NULL, &sprite_rect, angle, NULL,
                    SDL_FLIP_NONE);
 }
+void renderText(SDL_Renderer *renderer, SDL_Texture *sprite, int width,
+                int height, int angle) {
+  SDL_Rect text_rect;
+  text_rect.w = width;
+  text_rect.h = height;
+
+  text_rect.x = (SCREEN_WIDTH - text_rect.w) / 2;
+  text_rect.y = text_rect.h + 30;
+  SDL_RenderCopyEx(renderer, sprite, NULL, &text_rect, angle, NULL,
+                   SDL_FLIP_NONE);
+}
 
 void handleInput(SDL_Event event) {
   if (SDL_PollEvent(&event)) {
@@ -97,17 +108,13 @@ int main(int argc, char *argv[]) {
   // Load ttf
   TTF_Font *font = loadFont();
   SDL_Color text_color = {0x00, 0x00, 0x00, 0xff};
-  SDL_Rect text_rect;
-
   SDL_Surface *surface =
-      TTF_RenderUTF8_Blended(font, "Hello World!", text_color);
-  SDL_Texture *text = SDL_CreateTextureFromSurface(renderer, surface);
-  text_rect.w = surface->w;
-  text_rect.h = surface->h;
-  SDL_FreeSurface(surface);
+      TTF_RenderUTF8_Blended(font, "Hello World", text_color);
+  SDL_Texture *text_texture = SDL_CreateTextureFromSurface(renderer, surface);
 
-  text_rect.x = (SCREEN_WIDTH - text_rect.w) / 2;
-  text_rect.y = text_rect.h + 30;
+  int text_width = surface->w;
+  int text_height = surface->h;
+  SDL_FreeSurface(surface);
 
   SDL_Event event;
   while (running) {
@@ -120,8 +127,7 @@ int main(int argc, char *argv[]) {
       renderImage(renderer, sprite1, angle);
     }
 
-    SDL_RenderCopyEx(renderer, text, NULL, &text_rect, angle, NULL,
-                     SDL_FLIP_NONE);
+    renderText(renderer, text_texture, text_width, text_height, angle);
 
     SDL_RenderPresent(renderer);
   }
