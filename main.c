@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
       SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
   // Load the texture
-  SDL_Surface *pixels = IMG_Load("turtle_sticker.png");
+  SDL_Surface *pixels = IMG_Load("image.png");
   SDL_Texture *sprite = SDL_CreateTextureFromSurface(renderer, pixels);
   SDL_FreeSurface(pixels);
 
