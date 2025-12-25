@@ -1,41 +1,69 @@
-#include <pspkernel.h>
-#include <pspdebug.h>
-#include <pspdisplay.h>
+#include <SDL.h>
+#include <SDL_image.h>
 
-// PSP_MODULE_INFO is required
-PSP_MODULE_INFO("Hello World", 0, 1, 0);
-PSP_MAIN_THREAD_ATTR(PSP_THREAD_ATTR_USER);
+int main(int argc, char *argv[]) {
+  SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER);
 
-int exit_callback(int arg1, int arg2, void *common) {
-    sceKernelExitGame();
-    return 0;
-}
+  // Enable png support for SDL2_image
+  IMG_Init(IMG_INIT_PNG);
 
-int callback_thread(SceSize args, void *argp) {
-    int cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
-    sceKernelRegisterExitCallback(cbid);
-    sceKernelSleepThreadCB();
-    return 0;
-}
+  SDL_Window *window = SDL_CreateWindow("window", SDL_WINDOWPOS_UNDEFINED,
+                                        SDL_WINDOWPOS_UNDEFINED, 480, 272, 0);
 
-int setup_callbacks(void) {
-    int thid = sceKernelCreateThread("update_thread", callback_thread, 0x11, 0xFA0, 0, 0);
-    if(thid >= 0)
-        sceKernelStartThread(thid, 0, 0);
-    return thid;
-}
+  SDL_Renderer *renderer =
+      SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-int main(void)  {
-    // Use above functions to make exiting possible
-    setup_callbacks();
+  // Load the texture
+  SDL_Surface *pixels = IMG_Load("turtle_sticker.png");
+  SDL_Texture *sprite = SDL_CreateTextureFromSurface(renderer, pixels);
+  SDL_FreeSurface(pixels);
 
-    // Print Hello World! on a debug screen on a loop
-    pspDebugScreenInit();
-    while(1) {
-        pspDebugScreenSetXY(0, 0);
-        pspDebugScreenPrintf("Hello World!");
-        sceDisplayWaitVblankStart();
+  // Store the dimensions of the texture
+  SDL_Rect sprite_rect;
+  SDL_QueryTexture(sprite, NULL, NULL, &sprite_rect.w, &sprite_rect.h);
+
+  int running = 1;
+  SDL_Event event;
+  while (running) {
+    // Process input
+    if (SDL_PollEvent(&event)) {
+      switch (event.type) {
+      case SDL_QUIT:
+        // End the loop if the programs is being closed
+        running = 0;
+        break;
+      case SDL_CONTROLLERDEVICEADDED:
+        // Connect a controller when it is connected
+        SDL_GameControllerOpen(event.cdevice.which);
+        break;
+      case SDL_CONTROLLERBUTTONDOWN:
+        if (event.cbutton.button == SDL_CONTROLLER_BUTTON_START) {
+          // Close the program if start is pressed
+          running = 0;
+        }
+        break;
+      }
     }
 
-    return 0;
+    // Clear the screen
+    SDL_RenderClear(renderer);
+
+    // Draw the 'grass' sprite
+    sprite_rect.w = 100; // new width
+    sprite_rect.h = 150; // new height
+    sprite_rect.x = (480 - sprite_rect.w) / 2;
+    sprite_rect.y = (272 - sprite_rect.h) / 2;
+
+    SDL_RenderCopyEx(renderer, sprite, NULL, &sprite_rect, 90, NULL,
+                     SDL_FLIP_NONE);
+
+    // Draw everything on a white background
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderPresent(renderer);
+  }
+  SDL_DestroyRenderer(renderer);
+  SDL_DestroyWindow(window);
+  SDL_Quit();
+
+  return 0;
 }
