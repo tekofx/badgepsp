@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.11)
 
-project(sdl2-image)
+project(BadgePSP)
 
 add_executable(${PROJECT_NAME} main.c)
 
@@ -22,8 +22,8 @@ if(PSP)
     # Create an EBOOT.PBP file
     create_pbp_file(
         TARGET ${PROJECT_NAME}
-        ICON_PATH NULL
-        BACKGROUND_PATH NULL
+        ICON_PATH ${CMAKE_SOURCE_DIR}/assets/icon.png
+        BACKGROUND_PATH ${CMAKE_SOURCE_DIR}/assets/background.png
         PREVIEW_PATH NULL
         TITLE ${PROJECT_NAME}
         VERSION 01.00
