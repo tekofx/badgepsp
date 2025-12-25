@@ -1,5 +1,9 @@
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_ttf.h>
+// Define screen dimensions
+#define SCREEN_WIDTH 480
+#define SCREEN_HEIGHT 272
 
 int main(int argc, char *argv[]) {
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER);
@@ -7,8 +11,12 @@ int main(int argc, char *argv[]) {
   // Enable png support for SDL2_image
   IMG_Init(IMG_INIT_PNG);
 
-  SDL_Window *window = SDL_CreateWindow("window", SDL_WINDOWPOS_UNDEFINED,
-                                        SDL_WINDOWPOS_UNDEFINED, 480, 272, 0);
+  // Enable ttf support
+  TTF_Init();
+
+  SDL_Window *window =
+      SDL_CreateWindow("window", SDL_WINDOWPOS_UNDEFINED,
+                       SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
 
   SDL_Renderer *renderer =
       SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
@@ -17,6 +25,20 @@ int main(int argc, char *argv[]) {
   SDL_Surface *pixels = IMG_Load("image.png");
   SDL_Texture *sprite = SDL_CreateTextureFromSurface(renderer, pixels);
   SDL_FreeSurface(pixels);
+
+  // Load the ttf
+  TTF_Font *font = TTF_OpenFont("font.ttf", 24); // Load font
+  SDL_Color textColor = {0, 0, 0, 255};
+  SDL_Surface *textSurface =
+      TTF_RenderText_Solid(font, "Center Text", textColor);
+  SDL_Texture *textTexture =
+      SDL_CreateTextureFromSurface(renderer, textSurface);
+  SDL_FreeSurface(textSurface);
+
+  SDL_Rect textRect;
+  SDL_QueryTexture(textTexture, NULL, NULL, &textRect.w, &textRect.h);
+  textRect.x = (480 - textRect.w) / 2;
+  textRect.y = (272 - textRect.h) / 2;
 
   // Store the dimensions of the texture
   SDL_Rect sprite_rect;
@@ -52,9 +74,13 @@ int main(int argc, char *argv[]) {
     sprite_rect.w = 150; // new width
     sprite_rect.h = 150; // new height
     sprite_rect.x = 0;
-    sprite_rect.y = (272 - sprite_rect.h) / 2;
+    sprite_rect.y = (SCREEN_HEIGHT - sprite_rect.h) / 2;
 
     SDL_RenderCopyEx(renderer, sprite, NULL, &sprite_rect, 270, NULL,
+                     SDL_FLIP_NONE);
+
+    // Draw the text
+    SDL_RenderCopyEx(renderer, textTexture, NULL, &textRect, 270, NULL,
                      SDL_FLIP_NONE);
 
     // Draw everything on a white background
